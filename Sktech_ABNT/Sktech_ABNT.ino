@@ -22,10 +22,10 @@ void setup() {
   media.begin();
   Keyboard.begin();
   Serial.println(EEPROM.read(0));
-  if(EEPROM.read(0) > 10) {
-    threshold = EEPROM.read(0)*2;
+  if (EEPROM.read(0) > 10) {
+    threshold = EEPROM.read(0) * 2;
   }
-  
+
   while (diff > threshold) {
     long reading1 = scale.read() - 800000;
     diff = abs(reading1 - media.reading(reading1));
@@ -35,7 +35,7 @@ void setup() {
 }
 
 void loop() {
-//Serial.println('.');
+  //Serial.println('.');
   if (scale.is_ready()) {//
     Esplora.writeRGB(0, 0, 10);
     reading1 = scale.read() - 800000;
@@ -44,28 +44,56 @@ void loop() {
     Serial.print(", ");
     Serial.println(threshold);
 
-    if(Serial.available()>0) {
+    if (Serial.available() > 0) {
       char a = Serial.read();
-      switch(a) {
+      switch (a) {
         case 'u':
-        threshold+=4;
-        EEPROM.write(0, threshold/2);
-        break;
+          threshold += 4;
+          EEPROM.write(0, threshold / 2);
+          break;
 
         case 'd':
-        threshold-=4;
-        EEPROM.write(0, threshold/2);
-        break;
+          threshold -= 4;
+          EEPROM.write(0, threshold / 2);
+          break;
       }
     }
 
-    
+
     if (diff > threshold) {
       Esplora.writeRGB(10, 0, 0);
       Keyboard.press('s');
       delay(20);
       Keyboard.release('s');
-      delay(20000);//aa
+
+      //delay(20000);//aa
+      unsigned long int tantes = millis();
+      while (millis() - tantes < 20000) {
+        reading1 = scale.read() - 800000;
+        diff = abs(reading1 - media.reading(reading1));
+        Serial.print(diff);
+        Serial.print(", ");
+        Serial.println(threshold);
+
+        if (Serial.available() > 0) {
+          char a = Serial.read();
+          switch (a) {
+            case 'u':
+              threshold += 4;
+              EEPROM.write(0, threshold / 2);
+              break;
+
+            case 'd':
+              threshold -= 4;
+              EEPROM.write(0, threshold / 2);
+              break;
+          }
+        }
+      }
+
+
+
+
       Keyboard.press('a');
       delay(20);
       Keyboard.release('a');
